@@ -11,15 +11,25 @@ from sqlalchemy.pool import StaticPool
 # Database URL from environment variable or default for development
 DATABASE_URL = os.getenv(
     "DATABASE_URL", 
-    "postgresql://postgres:password@localhost:5432/ai_jupyter_notebook"
+    "sqlite:///./ai_jupyter_notebook.db"
 )
 
 # Create SQLAlchemy engine
-engine = create_engine(
-    DATABASE_URL,
-    poolclass=StaticPool,
-    echo=os.getenv("SQL_DEBUG", "false").lower() == "true"
-)
+if DATABASE_URL.startswith("sqlite"):
+    # SQLite specific configuration
+    engine = create_engine(
+        DATABASE_URL,
+        poolclass=StaticPool,
+        connect_args={"check_same_thread": False},
+        echo=os.getenv("SQL_DEBUG", "false").lower() == "true"
+    )
+else:
+    # PostgreSQL configuration
+    engine = create_engine(
+        DATABASE_URL,
+        poolclass=StaticPool,
+        echo=os.getenv("SQL_DEBUG", "false").lower() == "true"
+    )
 
 # Create SessionLocal class
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

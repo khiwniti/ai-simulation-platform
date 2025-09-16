@@ -158,7 +158,7 @@ class InlineAssistanceService {
           ...suggestion.metadata,
           receivedAt: Date.now(),
           requestId: result.metadata?.requestId
-        };
+        } as any;
         this.activeSuggestions.set(suggestion.id, suggestion);
       });
 

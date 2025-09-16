@@ -4,9 +4,8 @@ Notebook and Cell models for the AI Jupyter Notebook platform.
 
 import enum
 from sqlalchemy import Column, String, Text, Integer, ForeignKey, JSON, Enum
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-from app.models.base import BaseModel
+from app.models.base import BaseModel, UUID
 
 
 class CellType(enum.Enum):
@@ -27,7 +26,7 @@ class Notebook(BaseModel):
     title = Column(String(255), nullable=False)
     description = Column(Text)
     workbook_id = Column(UUID(as_uuid=True), ForeignKey("workbooks.id"), nullable=False)
-    metadata = Column(JSON, default=dict)
+    metadata_json = Column(JSON, default=dict)
     version = Column(Integer, default=1, nullable=False)
     
     # Relationships
@@ -51,7 +50,7 @@ class Cell(BaseModel):
     content = Column(Text, default="")
     execution_count = Column(Integer, default=0)
     position = Column(Integer, nullable=False)
-    metadata = Column(JSON, default=dict)
+    metadata_json = Column(JSON, default=dict)
     
     # Relationships
     notebook = relationship("Notebook", back_populates="cells")
@@ -71,7 +70,7 @@ class CellOutput(BaseModel):
     cell_id = Column(UUID(as_uuid=True), ForeignKey("cells.id"), nullable=False)
     output_type = Column(String(50), nullable=False)  # text, html, image, json, etc.
     content = Column(Text)
-    metadata = Column(JSON, default=dict)
+    metadata_json = Column(JSON, default=dict)
     output_index = Column(Integer, nullable=False, default=0)
     
     # Relationships

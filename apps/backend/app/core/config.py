@@ -17,12 +17,17 @@ class Settings(BaseSettings):
     DESCRIPTION: str = "Backend API for AI-powered engineering simulation platform"
     
     # CORS Configuration
-    BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
+    BACKEND_CORS_ORIGINS: List[str] = [
+        "http://localhost:3000", 
+        "http://127.0.0.1:3000", 
+        "http://localhost:53194", 
+        "http://127.0.0.1:53194"
+    ]
     
     # Database Configuration
     DATABASE_URL: str = os.getenv(
         "DATABASE_URL", 
-        "postgresql://postgres:password@localhost:5432/ai_jupyter_notebook"
+        "sqlite:///./ai_jupyter_notebook.db"
     )
     
     # Security Configuration

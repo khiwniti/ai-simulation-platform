@@ -4,8 +4,7 @@ AI Agent interaction models.
 
 import enum
 from sqlalchemy import Column, String, Text, Float, Integer, ForeignKey, JSON
-from sqlalchemy.dialects.postgresql import UUID
-from app.models.base import BaseModel
+from app.models.base import BaseModel, UUID
 
 
 class AgentType(enum.Enum):

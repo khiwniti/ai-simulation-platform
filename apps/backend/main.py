@@ -15,7 +15,7 @@ from app.core.error_handlers import (
     general_exception_handler
 )
 from app.api.v1.api import api_router
-from app.services.execution_service import execution_service
+from app.services.execution_service import get_execution_service
 
 # Create FastAPI application
 app = FastAPI(
@@ -47,7 +47,9 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
-    await execution_service.initialize()
+    # execution_service = get_execution_service()
+    # await execution_service.initialize()
+    pass
 
 
 @app.get("/")

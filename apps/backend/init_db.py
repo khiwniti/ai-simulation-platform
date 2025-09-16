@@ -15,7 +15,7 @@ def init_database():
     # Get database URL
     database_url = os.getenv(
         "DATABASE_URL", 
-        "postgresql://postgres:password@localhost:5432/ai_jupyter_notebook"
+        "sqlite:///./ai_jupyter_notebook.db"
     )
     
     print(f"Initializing database: {database_url}")

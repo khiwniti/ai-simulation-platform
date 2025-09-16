@@ -4,9 +4,8 @@ Simulation context and GPU resource models.
 
 import enum
 from sqlalchemy import Column, String, JSON, ForeignKey, Float, Integer
-from sqlalchemy.dialects.postgresql import UUID, ARRAY
 from sqlalchemy.orm import relationship
-from app.models.base import BaseModel
+from app.models.base import BaseModel, UUID
 
 
 class ExecutionState(enum.Enum):
@@ -28,7 +27,7 @@ class SimulationContext(BaseModel):
     notebook_id = Column(UUID(as_uuid=True), ForeignKey("notebooks.id"), nullable=False)
     physics_parameters = Column(JSON, default=dict)
     execution_state = Column(String(20), default=ExecutionState.IDLE.value)
-    active_agents = Column(ARRAY(String), default=list)
+    active_agents = Column(JSON, default=list)  # Store as JSON array instead of PostgreSQL ARRAY
     
     # GPU Resource Configuration
     gpu_device_id = Column(Integer)

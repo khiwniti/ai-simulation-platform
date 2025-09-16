@@ -595,8 +595,8 @@ class AgentOrchestrator:
                         continue
                 
                 # Update performance metrics
-            agent.update_performance_metrics(response)
-            return response
+                agent.update_performance_metrics(response)
+                return response
                 
             except asyncio.TimeoutError:
                 logger.error(f"Agent {agent.agent_id} query timed out (attempt {attempt + 1})")
@@ -606,7 +606,7 @@ class AgentOrchestrator:
                 else:
                     return await self._create_fallback_response(agent, query, "timeout")
                     
-        except Exception as e:
+            except Exception as e:
                 logger.error(f"Agent {agent.agent_id} query failed (attempt {attempt + 1}): {e}")
                 if attempt < max_retries:
                     await asyncio.sleep(retry_delay * (attempt + 1))
@@ -614,7 +614,7 @@ class AgentOrchestrator:
                 else:
                     return await self._create_fallback_response(agent, query, str(e))
                     
-            return None
+        return None
         
     async def _check_agent_health(self, agent: BaseAgent) -> bool:
         """Check if an agent is healthy and responsive."""
@@ -867,11 +867,11 @@ class AgentOrchestrator:
                     )
                     
                     if conflicting_suggestions:
-                    conflicts.append({
-                        'type': 'suggestion_conflict',
-                        'agent1': response1.agent_id,
-                        'agent2': response2.agent_id,
-                        'agent1_suggestions': response1.suggestions,
+                        conflicts.append({
+                            'type': 'suggestion_conflict',
+                            'agent1': response1.agent_id,
+                            'agent2': response2.agent_id,
+                            'agent1_suggestions': response1.suggestions,
                             'agent2_suggestions': response2.suggestions,
                             'conflicting_pairs': conflicting_suggestions,
                             'severity': self._assess_conflict_severity(conflicting_suggestions),
