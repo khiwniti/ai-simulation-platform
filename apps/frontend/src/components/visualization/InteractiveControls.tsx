@@ -359,7 +359,7 @@ export const InteractiveControls: React.FC<InteractiveControlsProps> = ({
         if (onInteraction) {
           onInteraction({
             type: 'hover',
-            object: intersectedObject,
+            object: intersectedObject || undefined,
             screenPosition: { x: event.clientX, y: event.clientY }
           });
         }
@@ -408,7 +408,7 @@ export const InteractiveControls: React.FC<InteractiveControlsProps> = ({
     if (onInteraction) {
       onInteraction({
         type: 'click',
-        object: intersectedObject,
+        object: intersectedObject || undefined,
         screenPosition: { x: event.clientX, y: event.clientY },
         button: event.button
       });

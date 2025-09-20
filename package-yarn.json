@@ -1,0 +1,23 @@
+{
+  "name": "ai-jupyter-platform-yarn",
+  "version": "1.0.0", 
+  "description": "AI Jupyter Platform - Yarn Compatible",
+  "private": true,
+  "workspaces": [
+    "packages/shared",
+    "apps/frontend"
+  ],
+  "scripts": {
+    "dev": "yarn workspace @ai-jupyter/frontend dev",
+    "build": "yarn workspace @ai-jupyter/frontend build", 
+    "start": "yarn workspace @ai-jupyter/frontend start",
+    "test": "yarn workspace @ai-jupyter/frontend test",
+    "lint": "yarn workspace @ai-jupyter/frontend lint",
+    "install:frontend": "yarn workspace @ai-jupyter/frontend install",
+    "install:shared": "yarn workspace @ai-jupyter/shared install"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}

@@ -8,22 +8,62 @@
     "apps/*"
   ],
   "scripts": {
+    "install:all": "npm install --workspaces",
+    "install:workspaces": "npm install --workspaces",
+    "install:backend": "cd apps/backend && npm run setup",
+    "install:frontend": "npm install --workspace=@ai-jupyter/frontend",
+    "install:shared": "npm install --workspace=@ai-jupyter/shared",
+    "setup": "npm run install:all && npm run install:backend",
     "dev": "turbo run dev",
+    "dev:frontend": "npm run dev --workspace=@ai-jupyter/frontend",
+    "dev:backend": "npm run dev --workspace=@ai-jupyter/backend",
+    "dev:shared": "npm run dev --workspace=@ai-jupyter/shared",
+    "start": "npm run start:all",
+    "start:all": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "start:frontend": "npm run start --workspace=@ai-jupyter/frontend",
+    "start:backend": "npm run start --workspace=@ai-jupyter/backend",
     "build": "turbo run build",
+    "build:all": "npm run build:shared && npm run build:frontend",
+    "build:frontend": "npm run build --workspace=@ai-jupyter/frontend",
+    "build:shared": "npm run build --workspace=@ai-jupyter/shared",
     "test": "turbo run test",
+    "test:all": "concurrently \"npm run test:frontend\" \"npm run test:backend\" \"npm run test:shared\"",
+    "test:frontend": "npm run test --workspace=@ai-jupyter/frontend",
+    "test:backend": "npm run test --workspace=@ai-jupyter/backend",
+    "test:shared": "npm run test --workspace=@ai-jupyter/shared",
     "lint": "turbo run lint",
+    "lint:all": "turbo run lint",
     "type-check": "turbo run type-check",
-    "clean": "turbo run clean"
+    "clean": "turbo run clean",
+    "clean:all": "npm run clean && npm run clean:node_modules",
+    "clean:node_modules": "rm -rf node_modules apps/*/node_modules packages/*/node_modules",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:build": "docker-compose build",
+    "docker:logs": "docker-compose logs -f"
   },
   "devDependencies": {
-    "turbo": "^1.10.0",
     "@types/node": "^20.0.0",
-    "typescript": "^5.0.0",
+    "concurrently": "^8.2.0",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.32",
     "prettier": "^3.0.0",
-    "eslint": "^8.0.0"
+    "turbo": "^1.10.0",
+    "typescript": "^5.0.0"
   },
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
-  }
+  },
+  "dependencies": {
+    "@types/react": "^18.3.24",
+    "@types/react-dom": "^18.3.7",
+    "autoprefixer": "^10.4.21",
+    "next": "^14.2.32",
+    "postcss": "^8.5.6",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwindcss": "^3.4.17"
+  },
+  "packageManager": "npm@9.0.0"
 }

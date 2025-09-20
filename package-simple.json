@@ -1,0 +1,26 @@
+{
+  "name": "ai-jupyter-platform",
+  "version": "1.0.0",
+  "description": "AI Jupyter Platform - Frontend Only Mode",
+  "private": true,
+  "scripts": {
+    "dev": "cd apps/frontend && npm run dev",
+    "build": "cd apps/frontend && npm run build",
+    "start": "cd apps/frontend && npm run start",
+    "test": "cd apps/frontend && npm run test",
+    "lint": "cd apps/frontend && npm run lint",
+    "type-check": "cd apps/frontend && npm run type-check",
+    "install:frontend": "cd apps/frontend && npm install",
+    "install:shared": "cd packages/shared && npm install",
+    "setup": "npm run install:shared && npm run install:frontend",
+    "clean": "rm -rf node_modules apps/frontend/node_modules packages/shared/node_modules"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

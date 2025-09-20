@@ -119,3 +119,7 @@ test-results.xml
 # Local configuration
 config.local.*
 .local/
+
+# Tempo platform files
+**/tempobook/dynamic/
+**/tempobook/storyboards/

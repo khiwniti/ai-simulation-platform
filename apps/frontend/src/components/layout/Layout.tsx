@@ -3,8 +3,6 @@
 import React from 'react';
 import { Sidebar } from './Sidebar';
 import { MainContent } from './MainContent';
-import { ChatInterface } from '../chat/ChatInterface';
-import { ChatToggleButton } from '../chat/ChatToggleButton';
 
 interface LayoutProps {
   children?: React.ReactNode;
@@ -12,12 +10,12 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <div className="layout-container">
+    <div className="layout-container flex min-h-screen bg-white">
       <Sidebar />
-      <MainContent />
-      <ChatToggleButton />
-      <ChatInterface />
-      {children}
+      <div className="flex-1">
+        <MainContent />
+        {children}
+      </div>
     </div>
   );
 };
