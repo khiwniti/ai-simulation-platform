@@ -1,46 +1,94 @@
 {
-  "name": "ai-jupyter-notebook",
-  "version": "1.0.0",
-  "description": "AI-powered engineering simulation platform with Jupyter notebooks",
+  "name": "ai-simulation-platform",
+  "version": "1.0.0-beta",
+  "description": "AI-Enhanced Engineering Simulation Platform with Jupyter-like notebooks and 3D visualization",
   "private": true,
   "workspaces": [
     "packages/*",
     "apps/*"
   ],
   "scripts": {
-    "install:all": "npm install --workspaces",
-    "install:workspaces": "npm install --workspaces",
-    "install:backend": "cd apps/backend && npm run setup",
-    "install:frontend": "npm install --workspace=@ai-jupyter/frontend",
-    "install:shared": "npm install --workspace=@ai-jupyter/shared",
-    "setup": "npm run install:all && npm run install:backend",
-    "dev": "turbo run dev",
-    "dev:frontend": "npm run dev --workspace=@ai-jupyter/frontend",
-    "dev:backend": "npm run dev --workspace=@ai-jupyter/backend",
-    "dev:shared": "npm run dev --workspace=@ai-jupyter/shared",
-    "start": "npm run start:all",
-    "start:all": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
-    "start:frontend": "npm run start --workspace=@ai-jupyter/frontend",
-    "start:backend": "npm run start --workspace=@ai-jupyter/backend",
-    "build": "turbo run build",
-    "build:all": "npm run build:shared && npm run build:frontend",
-    "build:frontend": "npm run build --workspace=@ai-jupyter/frontend",
-    "build:shared": "npm run build --workspace=@ai-jupyter/shared",
-    "test": "turbo run test",
-    "test:all": "concurrently \"npm run test:frontend\" \"npm run test:backend\" \"npm run test:shared\"",
-    "test:frontend": "npm run test --workspace=@ai-jupyter/frontend",
-    "test:backend": "npm run test --workspace=@ai-jupyter/backend",
-    "test:shared": "npm run test --workspace=@ai-jupyter/shared",
-    "lint": "turbo run lint",
-    "lint:all": "turbo run lint",
-    "type-check": "turbo run type-check",
-    "clean": "turbo run clean",
-    "clean:all": "npm run clean && npm run clean:node_modules",
+    "🚀 === MAIN COMMANDS ===": "",
+    "start": "npm run beta:start",
+    "dev": "npm run beta:dev",
+    "setup": "npm run beta:setup",
+    "stop": "npm run beta:stop",
+    
+    "🎯 === BETA RELEASE ===": "",
+    "beta:start": "concurrently --kill-others --prefix-colors \"bgBlue.bold,bgGreen.bold\" --names \"🔧 BACKEND,🖥️ FRONTEND\" \"npm run beta:backend\" \"npm run beta:frontend\"",
+    "beta:dev": "npm run beta:start",
+    "beta:setup": "npm run install:all && npm run python:check && npm run health:check",
+    "beta:backend": "cd apps/backend && node src/server.js",
+    "beta:frontend": "cd apps/frontend && npm run dev",
+    "beta:stop": "pkill -f 'node.*server\\.js' && pkill -f 'next-server'",
+    "beta:health": "curl -f http://localhost:4100/health && curl -f http://localhost:50787",
+    "beta:deploy": "./deploy-beta.sh",
+
+    "🔧 === DEVELOPMENT ===": "",
+    "dev:backend": "cd apps/backend && npm run dev",
+    "dev:frontend": "cd apps/frontend && npm run dev", 
+    "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    
+    "📦 === INSTALLATION ===": "",
+    "install:all": "yarn install && cd apps/backend && npm install && cd ../frontend && npm install",
+    "install:backend": "cd apps/backend && npm install",
+    "install:frontend": "cd apps/frontend && npm install",
+    "install:python": "pip3 install numpy matplotlib plotly pyvista vtk scipy scikit-image",
+    
+    "🐍 === PYTHON SETUP ===": "",
+    "python:check": "python3 --version && python3 -c 'import numpy, matplotlib, plotly; print(\"✅ Python packages OK\")'",
+    "python:install": "npm run install:python",
+    "python:test": "python3 -c 'import numpy as np; import matplotlib.pyplot as plt; print(\"✅ Python environment ready\")'",
+    
+    "🏗️ === BUILD ===": "",
+    "build": "npm run build:frontend",
+    "build:frontend": "cd apps/frontend && npm run build",
+    "build:all": "npm run build:frontend",
+    
+    "🧪 === TESTING ===": "",
+    "test": "npm run test:all",
+    "test:all": "concurrently \"npm run test:backend\" \"npm run test:frontend\"",
+    "test:backend": "cd apps/backend && npm test",
+    "test:frontend": "cd apps/frontend && npm test",
+    "test:ai": "curl -X POST http://localhost:4100/api/ai/chat -H 'Content-Type: application/json' -d '{\"message\":\"test\",\"notebookContext\":{},\"conversationHistory\":[]}'",
+    "test:python": "curl -X POST http://localhost:4100/api/notebooks/execute -H 'Content-Type: application/json' -d '{\"code\":\"print(\\\"Hello from Python!\\\")\"}'",
+    "test:cfd": "curl -X POST http://localhost:4100/api/ai/chat -H 'Content-Type: application/json' -d '{\"message\":\"external flow around sphere\",\"notebookContext\":{},\"conversationHistory\":[]}'",
+    
+    "🔍 === HEALTH & MONITORING ===": "",
+    "health": "npm run health:check",
+    "health:check": "concurrently \"curl -f http://localhost:4100/health || echo '❌ Backend down'\" \"curl -f http://localhost:50787 || echo '❌ Frontend down'\"",
+    "health:backend": "curl -f http://localhost:4100/health",
+    "health:frontend": "curl -f http://localhost:50787",
+    "logs": "npm run logs:all",
+    "logs:all": "tail -f logs/backend.log logs/frontend.log",
+    "logs:backend": "tail -f logs/backend.log",
+    "logs:frontend": "tail -f logs/frontend.log",
+    
+    "🛠️ === MAINTENANCE ===": "",
+    "clean": "npm run clean:all",
+    "clean:all": "npm run clean:node_modules && npm run clean:logs && npm run clean:temp",
     "clean:node_modules": "rm -rf node_modules apps/*/node_modules packages/*/node_modules",
+    "clean:logs": "rm -rf logs/*.log",
+    "clean:temp": "rm -rf apps/backend/temp/*.py",
+    "restart": "npm run stop && sleep 2 && npm run start",
+    
+    "🐳 === DOCKER ===": "",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:build": "docker-compose build",
-    "docker:logs": "docker-compose logs -f"
+    "docker:logs": "docker-compose logs -f",
+    
+    "🔒 === SECURITY ===": "",
+    "security:audit": "npm audit && cd apps/backend && npm audit && cd ../frontend && npm audit",
+    "security:fix": "npm audit fix && cd apps/backend && npm audit fix && cd ../frontend && npm audit fix",
+    
+    "📊 === DEMO & EXAMPLES ===": "",
+    "demo": "echo '🚀 Open http://localhost:50787/notebook/demo' && npm start",
+    "demo:cfd": "echo '🌊 Testing CFD simulation...' && npm run test:cfd",
+    "demo:ai": "echo '🤖 Testing AI assistant...' && npm run test:ai",
+    
+    "💡 === HELP ===": "",
+    "help": "echo '🚀 AI Simulation Platform Commands:\\n\\n📱 Quick Start:\\n  npm start     - Start full platform\\n  npm setup     - Complete setup\\n  npm demo      - Run demo\\n\\n🔧 Development:\\n  npm run dev   - Development mode\\n  npm test      - Run tests\\n  npm health    - Check status\\n\\n🛠️ Maintenance:\\n  npm clean     - Clean everything\\n  npm restart   - Restart services\\n\\n📚 More: Check package.json scripts'"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
@@ -48,12 +96,9 @@
     "eslint": "^8.57.1",
     "eslint-config-next": "^14.2.32",
     "prettier": "^3.0.0",
-    "turbo": "^1.10.0",
-    "typescript": "^5.0.0"
-  },
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=9.0.0"
+    "typescript": "^5.0.0",
+    "nodemon": "^3.0.0",
+    "cross-env": "^7.0.3"
   },
   "dependencies": {
     "@types/react": "^18.3.24",
@@ -65,5 +110,87 @@
     "react-dom": "^18.3.1",
     "tailwindcss": "^3.4.17"
   },
-  "packageManager": "yarn@1.22.22"
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0",
+    "python": ">=3.8.0"
+  },
+  "packageManager": "yarn@1.22.22",
+  "keywords": [
+    "ai",
+    "simulation",
+    "engineering",
+    "jupyter",
+    "notebook",
+    "3d-visualization",
+    "fluid-dynamics",
+    "heat-transfer",
+    "structural-analysis",
+    "cfd",
+    "python",
+    "react",
+    "nextjs",
+    "beta"
+  ],
+  "author": "AI Simulation Platform Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-org/ai-simulation-platform.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/ai-simulation-platform/issues"
+  },
+  "homepage": "https://github.com/your-org/ai-simulation-platform#readme",
+  "config": {
+    "ports": {
+      "frontend": 50787,
+      "backend": 4100
+    },
+    "urls": {
+      "frontend": "http://localhost:50787",
+      "backend": "http://localhost:4100",
+      "notebook": "http://localhost:50787/notebook/demo",
+      "health": "http://localhost:4100/health"
+    }
+  },
+  "beta": {
+    "version": "1.0.0",
+    "features": [
+      "AI Chat Assistant",
+      "3D Visualization Engine", 
+      "Engineering Simulation Templates",
+      "Real-time Code Execution",
+      "Interactive Notebook Interface",
+      "Fluid Dynamics CFD",
+      "Heat Transfer Analysis",
+      "Structural Analysis",
+      "Python Integration",
+      "matplotlib & Plotly Support"
+    ],
+    "requirements": {
+      "python": ">=3.8",
+      "packages": [
+        "numpy",
+        "matplotlib", 
+        "plotly",
+        "pyvista",
+        "vtk",
+        "scipy",
+        "scikit-image"
+      ]
+    },
+    "services": {
+      "backend": {
+        "port": 4100,
+        "path": "apps/backend",
+        "main": "src/server.js"
+      },
+      "frontend": {
+        "port": 50787,
+        "path": "apps/frontend",
+        "framework": "Next.js"
+      }
+    }
+  }
 }
