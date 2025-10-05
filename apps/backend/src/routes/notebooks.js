@@ -141,51 +141,74 @@ router.post('/:id/execute', async (req, res) => {
     await fs.mkdir(tempDir, { recursive: true });
     const pythonFile = path.join(tempDir, `${executionId}.py`);
     
-    // Enhanced Python code for better simulation support
+    // Beta simplified Python code for basic execution
     const enhancedCode = `
 import sys
 import io
-import contextlib
-import numpy as np
-import matplotlib
-matplotlib.use('Agg')  # Use non-interactive backend
-import matplotlib.pyplot as plt
 import traceback
-import base64
-from io import BytesIO
 import json
+
+# Try to import common packages, but don't fail if they're not available
+available_packages = []
+try:
+    import numpy as np
+    available_packages.append('numpy')
+except ImportError:
+    pass
+
+try:
+    import matplotlib
+    matplotlib.use('Agg')  # Use non-interactive backend
+    import matplotlib.pyplot as plt
+    from io import BytesIO
+    import base64
+    available_packages.append('matplotlib')
+    plotting_available = True
+except ImportError:
+    plotting_available = False
 
 # Capture stdout
 old_stdout = sys.stdout
 sys.stdout = captured_output = io.StringIO()
 
-# Capture plot
-plt.ioff()  # Turn off interactive mode
+# Prepare plot capture
 figures = []
 
 def save_figure():
-    """Save current figure to base64 string"""
-    if plt.get_fignums():
-        buf = BytesIO()
-        plt.savefig(buf, format='png', dpi=100, bbox_inches='tight')
-        buf.seek(0)
-        img_str = base64.b64encode(buf.read()).decode()
-        figures.append(img_str)
-        plt.close()
+    """Save current figure to base64 string if matplotlib is available"""
+    if plotting_available and 'matplotlib' in available_packages:
+        try:
+            if plt.get_fignums():
+                buf = BytesIO()
+                plt.savefig(buf, format='png', dpi=100, bbox_inches='tight')
+                buf.seek(0)
+                img_str = base64.b64encode(buf.read()).decode()
+                figures.append(img_str)
+                plt.close()
+        except Exception as e:
+            print(f"Warning: Could not save figure: {e}")
 
-# Override plt.show to capture figures
-original_show = plt.show
-def custom_show(*args, **kwargs):
-    save_figure()
-
-plt.show = custom_show
+# Override plt.show if matplotlib is available
+if plotting_available:
+    original_show = plt.show
+    def custom_show(*args, **kwargs):
+        save_figure()
+    plt.show = custom_show
 
 try:
+    # Print available packages info
+    if available_packages:
+        print(f"📦 Available packages: {', '.join(available_packages)}")
+    else:
+        print("📦 Running with basic Python (no data science packages)")
+    print("---")
+    
     # Execute user code
 ${code.split('\n').map(line => `    ${line}`).join('\n')}
     
     # Save any remaining figures
-    save_figure()
+    if plotting_available:
+        save_figure()
     
     # Get output
     output = captured_output.getvalue()
@@ -195,6 +218,7 @@ ${code.split('\n').map(line => `    ${line}`).join('\n')}
         "success": True,
         "output": output,
         "figures": figures,
+        "available_packages": available_packages,
         "error": None
     }
     
@@ -207,6 +231,7 @@ except Exception as e:
         "success": False,
         "output": error_output,
         "figures": [],
+        "available_packages": available_packages,
         "error": {
             "type": type(e).__name__,
             "message": str(e),
@@ -320,6 +345,242 @@ print(json.dumps(result))
     res.status(500).json({
       success: false,
       error: 'Failed to execute code'
+    });
+  }
+});
+
+// Beta: Simple execute endpoint without notebook ID
+router.post('/execute', async (req, res) => {
+  try {
+    const { code } = req.body;
+
+    if (!code || code.trim() === '') {
+      return res.json({
+        success: true,
+        output: '',
+        error: null,
+        figures: [],
+        available_packages: []
+      });
+    }
+
+    logger.info('🔬 Beta code execution request:', {
+      codeLength: code.length,
+      timestamp: new Date().toISOString()
+    });
+
+    const executionId = uuidv4();
+    
+    // Create temporary Python file
+    const tempDir = path.join(__dirname, '../../temp');
+    await fs.mkdir(tempDir, { recursive: true });
+    const pythonFile = path.join(tempDir, `${executionId}.py`);
+    
+    // Beta simplified Python code for basic execution
+    const enhancedCode = `
+import sys
+import io
+import traceback
+import json
+
+# Try to import common packages, but don't fail if they're not available
+available_packages = []
+try:
+    import numpy as np
+    available_packages.append('numpy')
+except ImportError:
+    pass
+
+try:
+    import matplotlib
+    matplotlib.use('Agg')  # Use non-interactive backend
+    import matplotlib.pyplot as plt
+    from io import BytesIO
+    import base64
+    available_packages.append('matplotlib')
+    plotting_available = True
+except ImportError:
+    plotting_available = False
+
+# Capture stdout
+old_stdout = sys.stdout
+sys.stdout = captured_output = io.StringIO()
+
+# Prepare plot capture
+figures = []
+
+def save_figure():
+    """Save current figure to base64 string if matplotlib is available"""
+    if plotting_available and 'matplotlib' in available_packages:
+        try:
+            if plt.get_fignums():
+                buf = BytesIO()
+                plt.savefig(buf, format='png', dpi=100, bbox_inches='tight')
+                buf.seek(0)
+                img_str = base64.b64encode(buf.read()).decode()
+                figures.append(img_str)
+                plt.close()
+        except Exception as e:
+            print(f"Warning: Could not save figure: {e}")
+
+# Override plt.show if matplotlib is available
+if plotting_available:
+    original_show = plt.show
+    def custom_show(*args, **kwargs):
+        save_figure()
+    plt.show = custom_show
+
+try:
+    # Print available packages info
+    if available_packages:
+        print(f"📦 Available packages: {', '.join(available_packages)}")
+    else:
+        print("📦 Running with basic Python (no data science packages)")
+    print("---")
+    
+    # Execute user code
+${code.split('\n').map(line => `    ${line}`).join('\n')}
+    
+    # Save any remaining figures
+    if plotting_available:
+        save_figure()
+    
+    # Get output
+    output = captured_output.getvalue()
+    
+    # Prepare result
+    result = {
+        "success": True,
+        "output": output,
+        "figures": figures,
+        "available_packages": available_packages,
+        "error": None
+    }
+    
+except Exception as e:
+    # Get error output
+    error_output = captured_output.getvalue()
+    error_trace = traceback.format_exc()
+    
+    result = {
+        "success": False,
+        "output": error_output,
+        "figures": [],
+        "available_packages": available_packages,
+        "error": {
+            "type": type(e).__name__,
+            "message": str(e),
+            "traceback": error_trace
+        }
+    }
+
+finally:
+    # Restore stdout
+    sys.stdout = old_stdout
+    
+# Print result as JSON
+print(json.dumps(result))
+`;
+    
+    await fs.writeFile(pythonFile, enhancedCode);
+    
+    // Execute Python code
+    const python = spawn('python3', [pythonFile], {
+      timeout: 30000, // 30 second timeout
+      encoding: 'utf8'
+    });
+    
+    let stdout = '';
+    let stderr = '';
+    
+    python.stdout.on('data', (data) => {
+      stdout += data;
+    });
+    
+    python.stderr.on('data', (data) => {
+      stderr += data;
+    });
+    
+    python.on('close', async (code) => {
+      try {
+        // Clean up temp file
+        await fs.unlink(pythonFile).catch(() => {});
+        
+        let result;
+        if (code === 0 && stdout.trim()) {
+          try {
+            // Try to parse the last line as JSON (our result)
+            const lines = stdout.trim().split('\n');
+            const lastLine = lines[lines.length - 1];
+            result = JSON.parse(lastLine);
+          } catch (parseError) {
+            result = {
+              success: true,
+              output: stdout.trim(),
+              figures: [],
+              available_packages: [],
+              error: null
+            };
+          }
+        } else {
+          result = {
+            success: false,
+            output: stderr || stdout || 'No output',
+            figures: [],
+            available_packages: [],
+            error: {
+              type: 'ExecutionError',
+              message: stderr || 'Code execution failed',
+              traceback: stderr
+            }
+          };
+        }
+
+        logger.info('✅ Beta code execution complete:', {
+          success: result.success,
+          hasOutput: !!result.output,
+          hasError: !!result.error,
+          figureCount: result.figures?.length || 0,
+          packages: result.available_packages?.join(', ') || 'none'
+        });
+
+        res.json(result);
+        
+      } catch (cleanupError) {
+        logger.error('Error during cleanup:', cleanupError);
+        res.status(500).json({
+          success: false,
+          error: 'Execution completed but cleanup failed',
+          output: '',
+          figures: [],
+          available_packages: []
+        });
+      }
+    });
+    
+    python.on('error', async (error) => {
+      logger.error('❌ Beta code execution error:', error);
+      
+      // Clean up temp file
+      await fs.unlink(pythonFile).catch(() => {});
+      
+      res.status(500).json({
+        success: false,
+        error: 'Failed to execute code: ' + error.message,
+        output: '',
+        figures: [],
+        available_packages: []
+      });
+    });
+
+  } catch (error) {
+    logger.error('❌ Beta code execution setup error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to execute code: ' + error.message,
+      output: '',
+      figures: [],
+      available_packages: []
     });
   }
 });

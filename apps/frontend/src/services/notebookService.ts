@@ -33,7 +33,7 @@ class NotebookService {
   private baseURL: string;
 
   constructor() {
-    this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+    this.baseURL = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4100'}/api`;
   }
 
   async createNotebook(data: {
@@ -108,6 +108,34 @@ class NotebookService {
         code,
         cellType,
       }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to execute code');
+    }
+
+    return await response.json();
+  }
+
+  // Beta: Simple execute method without notebook ID
+  async executeCodeSimple(code: string): Promise<{
+    success: boolean;
+    output: string;
+    figures: string[];
+    available_packages: string[];
+    error?: {
+      type: string;
+      message: string;
+      traceback: string;
+    };
+  }> {
+    const response = await fetch(`${this.baseURL}/notebooks/execute`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ code }),
     });
 
     if (!response.ok) {

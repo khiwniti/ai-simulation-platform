@@ -40,10 +40,15 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false
 }));
 
-// CORS configuration
+// CORS configuration for beta deployment
 const corsOptions = {
   origin: function (origin, callback) {
-    const allowedOrigins = process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3000'];
+    const allowedOrigins = process.env.CORS_ORIGINS?.split(',') || [
+      'http://localhost:3000', 
+      'http://localhost:50787', 
+      'http://localhost:59734'
+    ];
+    // In development, allow requests without origin (e.g., mobile apps, Postman)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -143,15 +148,21 @@ const PORT = process.env.PORT || 4100;
 
 async function startServer() {
   try {
-    // Connect to database
-    await connectDB();
-    logger.info('Database connected successfully');
+    // Skip database connection in beta mode
+    if (process.env.NODE_ENV === 'development') {
+      logger.info('🔧 Running in beta mode - skipping database connection');
+    } else {
+      // Connect to database in production
+      await connectDB();
+      logger.info('Database connected successfully');
+    }
 
     // Start server
     server.listen(PORT, '0.0.0.0', () => {
       logger.info(`🚀 EnsimuSpace Backend Server running on port ${PORT}`);
       logger.info(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
       logger.info(`📊 Health check: http://localhost:${PORT}/health`);
+      logger.info(`✨ Beta mode: Database-free notebook execution`);
     });
   } catch (error) {
     logger.error('Failed to start server:', error);
