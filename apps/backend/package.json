@@ -1,7 +1,7 @@
 {
-  "name": "@ensimuspace/backend",
+  "name": "@ai-jupyter/backend",
   "version": "1.0.0",
-  "description": "EnsimuSpace Backend API Server",
+  "description": "AI Jupyter Backend API Server",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",

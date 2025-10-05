@@ -236,10 +236,10 @@ export default function NotebookPage({ params }: NotebookPageProps) {
               
               <div className="hidden md:block">
                 <div className="text-sm font-medium text-gray-900 dark:text-white">
-                  {notebook.name}
+                  {notebook?.name || 'Untitled Notebook'}
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">
-                  {notebook.description}
+                  {notebook?.description || 'No description'}
                 </div>
               </div>
             </div>

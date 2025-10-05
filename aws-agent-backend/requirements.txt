@@ -18,9 +18,30 @@ pandas==2.1.4
 matplotlib==3.8.2
 plotly==5.17.0
 
-# Physics and Engineering Libraries
+# Physics and Engineering Libraries  
 sympy==1.12
 networkx==3.2.1
+scikit-fem==9.0.0
+meshio==5.3.4
+gmsh==4.11.1
+pyvista==0.43.1
+vtk==9.3.0
+
+# NVIDIA Physics AI Stack
+nvidia-omniverse-kit
+nvidia-isaac-sim
+physx-sdk
+cupy-cuda11x
+nvidia-ml-py
+pynvml
+numba[cuda]
+cudf-cu11
+cuspatial-cu11
+
+# NVIDIA AI Physics
+nvidia-modulus
+nvidia-dali-cuda110
+nvidia-nvjpeg-cu11
 
 # WebSocket and Real-time Communication
 websockets==12.0
