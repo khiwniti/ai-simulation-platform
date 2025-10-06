@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfeat: Add comprehensive CLAUDE.md for repository guidance\n\n- Created detailed architecture documentation for dual-platform system\n- Documented development commands for both Node.js and Python platforms\n- Added technology stack overview and core features architecture\n- Included testing strategy and environment setup guidance\n- Specified port configuration and performance considerations\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git push:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

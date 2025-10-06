@@ -1,0 +1,40 @@
+{
+  "name": "parallel-dev-config",
+  "description": "Configuration for running all AI Jupyter Platform services in parallel",
+  "services": {
+    "shared": {
+      "name": "Shared Package",
+      "command": "npm run dev:shared",
+      "description": "TypeScript compilation in watch mode for shared types and utilities",
+      "color": "blue",
+      "essential": true
+    },
+    "frontend": {
+      "name": "Frontend (Next.js)",
+      "command": "npm run dev:frontend",
+      "description": "Next.js development server with hot reload",
+      "port": 3000,
+      "color": "green",
+      "essential": true
+    },
+    "backend": {
+      "name": "Backend API",
+      "command": "npm run dev:backend",
+      "description": "Backend API server (if available)",
+      "port": 8000,
+      "color": "yellow",
+      "essential": false
+    }
+  },
+  "parallel_commands": {
+    "dev_all": "concurrently --kill-others-on-fail --prefix-colors \"blue,green,yellow\" --prefix \"[{name}]\" --names \"SHARED,FRONTEND,BACKEND\" \"npm run dev:shared\" \"npm run dev:frontend\" \"npm run dev:backend || echo 'Backend not available'\"",
+    "turbo_dev": "turbo run dev --parallel --no-cache",
+    "build_all": "turbo run build --parallel",
+    "test_all": "turbo run test --parallel"
+  },
+  "environment": {
+    "NODE_ENV": "development",
+    "FORCE_COLOR": "1",
+    "TURBO_TELEMETRY_DISABLED": "1"
+  }
+}

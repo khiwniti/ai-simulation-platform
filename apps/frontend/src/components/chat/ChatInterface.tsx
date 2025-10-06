@@ -1,292 +1,49 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useChatStore } from '../../stores/chatStore';
-import { useWorkbookStore } from '../../stores/workbookStore';
-import { ChatHeader } from './ChatHeader';
-import { ChatMessages } from './ChatMessages';
-import { ChatInput } from './ChatInput';
-import { AgentSelector } from './AgentSelector';
-import { chatWebSocketService } from '../../services/chatWebSocketService';
-import { chatApiService } from '../../services/chatApiService';
-import { MessageType, ChatMessage } from '@ai-jupyter/shared';
-import { v4 as uuidv4 } from 'uuid';
+import React, { useState } from 'react';
 
 interface ChatInterfaceProps {
   className?: string;
 }
 
-export const ChatInterface: React.FC<ChatInterfaceProps> = ({ className = '' }) => {
-  const {
-    isOpen,
-    currentSession,
-    isConnected,
-    error,
-    selectedAgents,
-    availableAgents,
-    closeChat,
-    setCurrentSession,
-    setConnectionStatus,
-    setError,
-    addMessage,
-    setAvailableAgents
-  } = useChatStore();
-
-  const { selectedNotebook } = useWorkbookStore();
-  const [isInitializing, setIsInitializing] = useState(false);
-
-  useEffect(() => {
-    if (isOpen && !currentSession) {
-      initializeChatSession();
-    }
-  }, [isOpen, selectedNotebook]);
-
-  useEffect(() => {
-    if (isOpen) {
-      setupWebSocketHandlers();
-      loadAvailableAgents();
-    }
-
-    return () => {
-      if (chatWebSocketService.isConnected) {
-        chatWebSocketService.disconnect();
-      }
-    };
-  }, [isOpen]);
-
-  const initializeChatSession = async () => {
-    if (isInitializing) return;
-    
-    setIsInitializing(true);
-    setError(null);
-
-    try {
-      const sessionId = uuidv4();
-      
-      // Create session via API
-      const session = await chatApiService.createChatSession(
-        sessionId,
-        selectedNotebook?.id,
-        {
-          notebookTitle: selectedNotebook?.title,
-          workbookId: selectedNotebook?.workbookId
-        }
-      );
-
-      setCurrentSession({
-        id: sessionId,
-        notebookId: selectedNotebook?.id,
-        activeAgents: [],
-        messages: [],
-        context: session.context || {},
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
-
-      // Connect WebSocket
-      await chatWebSocketService.connect(sessionId);
-      setConnectionStatus(true);
-
-    } catch (error) {
-      console.error('Failed to initialize chat session:', error);
-      setError(error instanceof Error ? error.message : 'Failed to initialize chat');
-    } finally {
-      setIsInitializing(false);
-    }
-  };
-
-  const setupWebSocketHandlers = () => {
-    chatWebSocketService.onConnect(() => {
-      setConnectionStatus(true);
-      setError(null);
-    });
-
-    chatWebSocketService.onDisconnect(() => {
-      setConnectionStatus(false);
-    });
-
-    chatWebSocketService.onError((error) => {
-      setError('Connection error occurred');
-      setConnectionStatus(false);
-    });
-
-    // Handle incoming agent responses
-    chatWebSocketService.onMessage(MessageType.AGENT_RESPONSE, (payload) => {
-      const message: ChatMessage = {
-        id: uuidv4(),
-        sessionId: currentSession?.id || '',
-        type: 'agent',
-        content: payload.response,
-        agentId: payload.agent_id,
-        agentType: payload.agent_type,
-        timestamp: new Date(),
-        codeSnippets: payload.code_snippets || [],
-        suggestions: payload.suggestions || [],
-        confidenceScore: payload.confidence_score,
-        metadata: {
-          responseTime: payload.response_time,
-          capabilitiesUsed: payload.capabilities_used
-        }
-      };
-      
-      addMessage(message);
-    });
-
-    // Handle coordination responses
-    chatWebSocketService.onMessage(MessageType.AGENT_COORDINATION, (payload) => {
-      const primaryMessage: ChatMessage = {
-        id: uuidv4(),
-        sessionId: currentSession?.id || '',
-        type: 'agent',
-        content: payload.primary_response.response,
-        agentId: payload.primary_response.agent_id,
-        agentType: payload.primary_response.agent_type,
-        timestamp: new Date(),
-        codeSnippets: payload.primary_response.code_snippets || [],
-        suggestions: payload.primary_response.suggestions || [],
-        confidenceScore: payload.primary_response.confidence_score,
-        metadata: {
-          coordinationType: 'primary',
-          consensusScore: payload.consensus_score,
-          coordinationTime: payload.coordination_time,
-          supportingAgents: payload.supporting_responses?.map((r: any) => r.agent_id) || []
-        }
-      };
-      
-      addMessage(primaryMessage);
-
-      // Add supporting responses if any
-      payload.supporting_responses?.forEach((response: any) => {
-        const supportingMessage: ChatMessage = {
-          id: uuidv4(),
-          sessionId: currentSession?.id || '',
-          type: 'agent',
-          content: response.response,
-          agentId: response.agent_id,
-          agentType: response.agent_type,
-          timestamp: new Date(),
-          codeSnippets: response.code_snippets || [],
-          suggestions: response.suggestions || [],
-          confidenceScore: response.confidence_score,
-          metadata: {
-            coordinationType: 'supporting'
-          }
-        };
-        
-        addMessage(supportingMessage);
-      });
-    });
-
-    // Handle system messages
-    chatWebSocketService.onMessage(MessageType.SYSTEM_MESSAGE, (payload) => {
-      const message: ChatMessage = {
-        id: uuidv4(),
-        sessionId: currentSession?.id || '',
-        type: 'system',
-        content: payload.message,
-        timestamp: new Date(),
-        metadata: payload.metadata
-      };
-      
-      addMessage(message);
-    });
-
-    // Handle errors
-    chatWebSocketService.onMessage(MessageType.ERROR, (payload) => {
-      setError(payload.message || 'An error occurred');
-    });
-  };
-
-  const loadAvailableAgents = async () => {
-    try {
-      const agents = await chatApiService.getAvailableAgents();
-      setAvailableAgents(agents);
-    } catch (error) {
-      console.error('Failed to load available agents:', error);
-    }
-  };
-
-  const handleSendMessage = async (content: string) => {
-    if (!currentSession || !content.trim()) return;
-
-    // Add user message to chat
-    const userMessage: ChatMessage = {
-      id: uuidv4(),
-      sessionId: currentSession.id,
-      type: 'user',
-      content: content.trim(),
-      timestamp: new Date()
-    };
-    
-    addMessage(userMessage);
-
-    // Send message via WebSocket
-    if (selectedAgents.length > 1) {
-      // Multi-agent coordination
-      chatWebSocketService.requestAgentCoordination(content.trim());
-    } else {
-      // Single agent or general query
-      chatWebSocketService.sendUserMessage(content.trim(), selectedAgents);
-    }
-  };
-
-  const handleCloseChat = async () => {
-    if (currentSession) {
-      try {
-        await chatApiService.endChatSession(currentSession.id);
-      } catch (error) {
-        console.error('Failed to end chat session:', error);
-      }
-    }
-    
-    chatWebSocketService.disconnect();
-    setCurrentSession(null);
-    setConnectionStatus(false);
-    closeChat();
-  };
-
-  if (!isOpen) return null;
+export const ChatInterface: React.FC<ChatInterfaceProps> = ({ 
+  className = '' 
+}) => {
+  const [isVisible, setIsVisible] = useState(false);
 
   return (
     <div className={`chat-interface ${className}`}>
-      <div className="chat-container">
-        <ChatHeader
-          isConnected={isConnected}
-          isInitializing={isInitializing}
-          onClose={handleCloseChat}
-          sessionId={currentSession?.id}
-        />
-        
-        {error && (
-          <div className="chat-error">
-            <span className="error-icon">⚠️</span>
-            <span className="error-message">{error}</span>
+      {!isVisible ? (
+        <button
+          onClick={() => setIsVisible(true)}
+          className="fixed bottom-4 right-4 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
+        >
+          <span className="text-xl">💬</span>
+        </button>
+      ) : (
+        <div className="fixed bottom-4 right-4 w-80 h-96 bg-white border border-gray-200 rounded-lg shadow-lg flex flex-col">
+          <div className="flex items-center justify-between p-4 border-b border-gray-200">
+            <h3 className="font-semibold text-gray-800">AI Assistant</h3>
+            <button
+              onClick={() => setIsVisible(false)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              ✕
+            </button>
           </div>
-        )}
-        
-        <AgentSelector
-          availableAgents={availableAgents}
-          selectedAgents={selectedAgents}
-          disabled={!isConnected || isInitializing}
-        />
-        
-        <ChatMessages
-          messages={currentSession?.messages || []}
-          isTyping={false} // Will be implemented with typing indicators
-        />
-        
-        <ChatInput
-          onSendMessage={handleSendMessage}
-          disabled={!isConnected || isInitializing}
-          placeholder={
-            isInitializing 
-              ? "Initializing chat..." 
-              : !isConnected 
-                ? "Connecting..." 
-                : "Ask the AI agents for help..."
-          }
-        />
-      </div>
+          <div className="flex-1 p-4 text-center">
+            <div className="text-gray-400 mb-4">
+              <span className="text-4xl">🤖</span>
+            </div>
+            <h3 className="text-lg font-medium text-gray-600 mb-2">
+              AI Chat Coming Soon
+            </h3>
+            <p className="text-sm text-gray-500">
+              AI-powered assistance will be available in the next phase.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

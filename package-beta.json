@@ -1,0 +1,33 @@
+{
+  "name": "ensimu-notebook-beta",
+  "version": "1.0.0-beta",
+  "description": "AI-Enhanced Engineering Simulation Platform - Beta Version",
+  "private": true,
+  "scripts": {
+    "dev": "cd apps/frontend && npm run dev",
+    "build": "cd apps/frontend && npm run build",
+    "start": "cd apps/frontend && npm run start",
+    "beta": "bash beta-start.sh",
+    "setup": "cd apps/frontend && npm install --no-package-lock",
+    "clean": "rm -rf node_modules apps/frontend/node_modules && find . -name 'package-lock.json' -delete"
+  },
+  "keywords": [
+    "ai",
+    "jupyter",
+    "notebook",
+    "engineering",
+    "simulation",
+    "physics",
+    "luminary",
+    "beta"
+  ],
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/khiwniti/ai-simulation-platform.git"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,78 @@
+{
+  "name": "ai-simulation-platform-beta",
+  "version": "1.0.0-beta",
+  "description": "AI-Enhanced Engineering Simulation Platform - Beta Release",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd apps/backend && node src/server.js",
+    "dev:frontend": "cd apps/frontend && npm run dev",
+    "start": "npm run dev",
+    "build": "cd apps/frontend && npm run build",
+    "test": "echo \"Beta testing suite\" && exit 0",
+    "deploy:beta": "./deploy-beta.sh",
+    "stop:beta": "./stop-beta.sh",
+    "health": "curl -f http://localhost:4100/health || exit 1"
+  },
+  "keywords": [
+    "ai",
+    "simulation",
+    "engineering",
+    "jupyter",
+    "notebook",
+    "3d-visualization",
+    "fluid-dynamics",
+    "heat-transfer",
+    "structural-analysis",
+    "cfd",
+    "beta"
+  ],
+  "author": "AI Simulation Platform Team",
+  "license": "MIT",
+  "dependencies": {
+    "concurrently": "^7.6.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-org/ai-simulation-platform.git",
+    "directory": "."
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/ai-simulation-platform/issues"
+  },
+  "homepage": "https://github.com/your-org/ai-simulation-platform#readme",
+  "beta": {
+    "features": [
+      "AI Chat Assistant",
+      "3D Visualization Engine", 
+      "Engineering Simulation Templates",
+      "Real-time Code Execution",
+      "Interactive Notebook Interface",
+      "Fluid Dynamics CFD",
+      "Heat Transfer Analysis",
+      "Structural Analysis"
+    ],
+    "endpoints": {
+      "frontend": "http://localhost:50787",
+      "backend": "http://localhost:4100",
+      "notebook": "http://localhost:50787/notebook/demo",
+      "health": "http://localhost:4100/health"
+    },
+    "requirements": {
+      "python": ">=3.8",
+      "packages": [
+        "numpy",
+        "matplotlib", 
+        "plotly",
+        "pyvista",
+        "vtk",
+        "scipy",
+        "scikit-image"
+      ]
+    }
+  }
+}

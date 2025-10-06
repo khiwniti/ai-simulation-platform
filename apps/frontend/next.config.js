@@ -1,17 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    transpilePackages: ['@ai-jupyter/shared'],
-  },
+  transpilePackages: [],
   webpack: (config) => {
-    // Handle Three.js
-    config.externals = config.externals || [];
-    config.externals.push({
-      'three/examples/jsm/loaders/GLTFLoader': 'THREE.GLTFLoader',
-    });
-    
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      net: false,
+      tls: false,
+    };
     return config;
   },
-};
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig

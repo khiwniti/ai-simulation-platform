@@ -99,7 +99,9 @@ export const PhysicsRenderer: React.FC<PhysicsRendererProps> = ({
     });
 
     // Configure solver
-    world.solver.iterations = config.iterations;
+    if ('iterations' in world.solver) {
+      (world.solver as any).iterations = config.iterations;
+    }
     world.allowSleep = true;
 
     // Add contact material

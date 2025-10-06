@@ -1,0 +1,22 @@
+{
+  "name": "ai-jupyter-frontend-only",
+  "version": "1.0.0",
+  "description": "AI Jupyter Platform - Frontend Only",
+  "private": true,
+  "workspaces": [
+    "packages/shared",
+    "apps/frontend"
+  ],
+  "scripts": {
+    "dev": "cd apps/frontend && npm run dev",
+    "build": "cd apps/frontend && npm run build",
+    "start": "cd apps/frontend && npm run start",
+    "install:frontend": "cd apps/frontend && npm install",
+    "install:shared": "cd packages/shared && npm install",
+    "setup": "npm run install:shared && npm run install:frontend"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}

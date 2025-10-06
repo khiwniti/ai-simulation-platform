@@ -1,122 +1,57 @@
-import { create } from 'zustand';
-import { 
-  ChatState, 
-  ChatSession, 
-  ChatMessage, 
-  AgentInfo, 
-  CodeSnippet 
-} from '@ai-jupyter/shared';
+'use client';
 
-interface ChatStore extends ChatState {
-  // Actions
-  openChat: () => void;
-  closeChat: () => void;
-  setCurrentSession: (session: ChatSession | null) => void;
-  addMessage: (message: ChatMessage) => void;
-  updateMessage: (messageId: string, updates: Partial<ChatMessage>) => void;
-  setAvailableAgents: (agents: AgentInfo[]) => void;
-  toggleAgentSelection: (agentId: string) => void;
-  setSelectedAgents: (agentIds: string[]) => void;
-  setConnectionStatus: (isConnected: boolean) => void;
-  setTypingStatus: (isTyping: boolean) => void;
-  setError: (error: string | null) => void;
-  clearMessages: () => void;
-  insertCodeSnippet: (snippet: CodeSnippet) => void;
-  updateContext: (context: Record<string, any>) => void;
+import { create } from 'zustand';
+
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
 }
 
-export const useChatStore = create<ChatStore>((set, get) => ({
-  // Initial state
-  isOpen: false,
-  currentSession: null,
-  availableAgents: [],
-  selectedAgents: [],
-  isConnected: false,
-  isTyping: false,
-  error: null,
+interface ChatState {
+  messages: Message[];
+  isLoading: boolean;
+  currentAgent: string;
+  selectedAgents: string[];
+  isOpen: boolean;
+}
 
-  // Actions
-  openChat: () => set({ isOpen: true }),
-  
-  closeChat: () => set({ isOpen: false }),
-  
-  setCurrentSession: (session) => set({ currentSession: session }),
-  
-  addMessage: (message) => set((state) => {
-    if (!state.currentSession) return state;
-    
-    return {
-      currentSession: {
-        ...state.currentSession,
-        messages: [...state.currentSession.messages, message],
-        updatedAt: new Date()
-      }
-    };
-  }),
-  
-  updateMessage: (messageId, updates) => set((state) => {
-    if (!state.currentSession) return state;
-    
-    return {
-      currentSession: {
-        ...state.currentSession,
-        messages: state.currentSession.messages.map(msg =>
-          msg.id === messageId ? { ...msg, ...updates } : msg
-        ),
-        updatedAt: new Date()
-      }
-    };
-  }),
-  
-  setAvailableAgents: (agents) => set({ availableAgents: agents }),
-  
-  toggleAgentSelection: (agentId) => set((state) => {
-    const isSelected = state.selectedAgents.includes(agentId);
-    return {
-      selectedAgents: isSelected
-        ? state.selectedAgents.filter(id => id !== agentId)
-        : [...state.selectedAgents, agentId]
-    };
-  }),
-  
-  setSelectedAgents: (agentIds) => set({ selectedAgents: agentIds }),
-  
-  setConnectionStatus: (isConnected) => set({ isConnected }),
-  
-  setTypingStatus: (isTyping) => set({ isTyping }),
-  
-  setError: (error) => set({ error }),
-  
-  clearMessages: () => set((state) => {
-    if (!state.currentSession) return state;
-    
-    return {
-      currentSession: {
-        ...state.currentSession,
-        messages: [],
-        updatedAt: new Date()
-      }
-    };
-  }),
-  
-  insertCodeSnippet: (snippet) => {
-    // This will be handled by the notebook editor
-    // For now, we'll emit a custom event that the notebook can listen to
-    const event = new CustomEvent('insertCodeSnippet', { 
-      detail: snippet 
-    });
-    window.dispatchEvent(event);
+interface ChatActions {
+  addMessage: (message: Omit<Message, 'timestamp'>) => void;
+  setLoading: (loading: boolean) => void;
+  setCurrentAgent: (agent: string) => void;
+  setSelectedAgents: (agents: string[]) => void;
+  toggleAgentSelection: (agentId: string) => void;
+  insertCodeSnippet: (code: string) => void;
+  openChat: () => void;
+  closeChat: () => void;
+  clearMessages: () => void;
+}
+
+export const useChatStore = create<ChatState & ChatActions>((set) => ({
+  messages: [],
+  isLoading: false,
+  currentAgent: 'general',
+  selectedAgents: [],
+  isOpen: false,
+  addMessage: (message) =>
+    set((state) => ({
+      messages: [...state.messages, { ...message, timestamp: new Date() }],
+    })),
+  setLoading: (loading) => set({ isLoading: loading }),
+  setCurrentAgent: (agent) => set({ currentAgent: agent }),
+  setSelectedAgents: (agents) => set({ selectedAgents: agents }),
+  toggleAgentSelection: (agentId) =>
+    set((state) => ({
+      selectedAgents: state.selectedAgents.includes(agentId)
+        ? state.selectedAgents.filter((id) => id !== agentId)
+        : [...state.selectedAgents, agentId],
+    })),
+  insertCodeSnippet: (code) => {
+    // This would typically insert code into the current notebook cell
+    console.log('Inserting code snippet:', code);
   },
-  
-  updateContext: (context) => set((state) => {
-    if (!state.currentSession) return state;
-    
-    return {
-      currentSession: {
-        ...state.currentSession,
-        context: { ...state.currentSession.context, ...context },
-        updatedAt: new Date()
-      }
-    };
-  })
+  openChat: () => set({ isOpen: true }),
+  closeChat: () => set({ isOpen: false }),
+  clearMessages: () => set({ messages: [] }),
 }));

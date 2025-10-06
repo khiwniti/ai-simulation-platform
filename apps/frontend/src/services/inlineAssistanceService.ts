@@ -156,9 +156,8 @@ class InlineAssistanceService {
       result.suggestions.forEach(suggestion => {
         suggestion.metadata = {
           ...suggestion.metadata,
-          receivedAt: Date.now(),
           requestId: result.metadata?.requestId
-        };
+        } as any;
         this.activeSuggestions.set(suggestion.id, suggestion);
       });
 
