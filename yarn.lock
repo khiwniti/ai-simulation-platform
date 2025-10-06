@@ -7,7 +7,7 @@
   resolved "https://registry.npmjs.org/@adobe/css-tools/-/css-tools-4.4.4.tgz"
   integrity sha512-Elp+iwUx5rN5+Y8xLt5/GRoG20WGoDCQ/1Fb+1LiGtvwbDavuSk0jhD/eZdckHAuzcDzccnkv+rEjyWfRx18gg==
 
-"@ai-jupyter/backend@file:/workspace/ai-simulation-platform/apps/backend":
+"@ai-jupyter/backend@file:/teamspace/studios/this_studio/openhands-temp/ai-simulation-platform/apps/backend":
   version "1.0.0"
   resolved "file:apps/backend"
   dependencies:
@@ -29,7 +29,7 @@
     uuid "^9.0.1"
     winston "^3.11.0"
 
-"@ai-jupyter/frontend@file:/workspace/ai-simulation-platform/apps/frontend":
+"@ai-jupyter/frontend@file:/teamspace/studios/this_studio/openhands-temp/ai-simulation-platform/apps/frontend":
   version "1.0.0"
   resolved "file:apps/frontend"
   dependencies:
@@ -61,7 +61,7 @@
     uuid "^13.0.0"
     zustand "^4.4.0"
 
-"@ai-jupyter/shared@*", "@ai-jupyter/shared@file:/workspace/ai-simulation-platform/packages/shared":
+"@ai-jupyter/shared@*", "@ai-jupyter/shared@file:/teamspace/studios/this_studio/openhands-temp/ai-simulation-platform/packages/shared":
   version "1.0.0"
   resolved "file:packages/shared"
   dependencies:
