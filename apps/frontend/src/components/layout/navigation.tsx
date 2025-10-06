@@ -37,8 +37,9 @@ export function Navigation({ className }: NavigationProps) {
 
   const navItems = [
     { label: 'Platform', href: '#platform' },
-    { label: 'Features', href: '#features' },
+    { label: 'EnsimuLab', href: '/lab' },
     { label: 'Simulations', href: '/simulations' },
+    { label: 'Features', href: '#features' },
     { label: 'Pricing', href: '#pricing' },
     { label: 'Docs', href: '#docs' }
   ]

@@ -54,12 +54,17 @@ export default function NotebookPage({ params }: NotebookPageProps) {
     {
       id: '1',
       type: 'markdown',
-      content: '# Welcome to EnsimuNotebook\n\nThis is your new simulation notebook. You can:\n- Write and execute code\n- Add physics simulations\n- Create interactive visualizations\n- Collaborate in real-time'
+      content: '# Engineering Simulation Notebook\n\nWelcome to **EnsimuNotebook** - AI-enhanced engineering simulation environment.\n\n## Quick Start:\n- **Code cells**: Write Python for data analysis and calculations\n- **Physics cells**: Build real-time 3D simulations with physics engines\n- **AI assistance**: Get intelligent code suggestions and optimizations\n- **Visualization**: Create interactive plots and 3D models\n\n💡 **Tip**: Click the AI assistant button (✨) for intelligent help at any time!'
     },
     {
       id: '2',
       type: 'code',
-      content: '# Import libraries\nimport numpy as np\nimport matplotlib.pyplot as plt\n\n# Create sample data\nx = np.linspace(0, 10, 100)\ny = np.sin(x)\n\nprint("EnsimuNotebook is ready!")'
+      content: '# Engineering Analysis Setup\nimport numpy as np\nimport matplotlib.pyplot as plt\nfrom scipy import optimize, integrate\n\n# Example: Structural beam analysis\nL = 10.0  # Length (m)\nE = 200e9  # Young\'s modulus (Pa) - steel\nI = 8.3e-6  # Second moment of area (m^4)\nw = 5000  # Distributed load (N/m)\n\n# Maximum deflection at center\nmax_deflection = (5 * w * L**4) / (384 * E * I)\nprint(f"Maximum beam deflection: {max_deflection*1000:.2f} mm")\n\n# Stress analysis\nmax_moment = w * L**2 / 8  # Maximum bending moment\nmax_stress = max_moment * (0.05) / I  # Assuming beam height = 0.1m\nprint(f"Maximum bending stress: {max_stress/1e6:.1f} MPa")'
+    },
+    {
+      id: '3',
+      type: 'physics',
+      content: '// 3D Physics Simulation - Pendulum System\n// This cell creates an interactive 3D physics simulation\n\n// Define pendulum parameters\nconst pendulumLength = 5.0;\nconst mass = 1.0;\nconst gravity = 9.81;\nconst initialAngle = Math.PI / 4; // 45 degrees\n\n// Create 3D scene\nscene = new THREE.Scene();\ncamera = new THREE.PerspectiveCamera(75, 800/600, 0.1, 1000);\nrenderer = new THREE.WebGLRenderer();\n\n// Add pendulum visualization\nconst sphereGeometry = new THREE.SphereGeometry(0.2, 32, 32);\nconst sphereMaterial = new THREE.MeshPhongMaterial({ color: 0xff4444 });\nconst pendulumBob = new THREE.Mesh(sphereGeometry, sphereMaterial);\n\n// Physics simulation loop\nfunction simulate() {\n  // Pendulum physics equations\n  const angularAcceleration = -(gravity / pendulumLength) * Math.sin(currentAngle);\n  angularVelocity += angularAcceleration * deltaTime;\n  currentAngle += angularVelocity * deltaTime;\n  \n  // Update 3D position\n  pendulumBob.position.x = pendulumLength * Math.sin(currentAngle);\n  pendulumBob.position.y = -pendulumLength * Math.cos(currentAngle);\n}\n\nconsole.log("Interactive pendulum simulation ready!");'
     }
   ]);
   const [isRunning, setIsRunning] = useState(false);
@@ -83,9 +88,9 @@ export default function NotebookPage({ params }: NotebookPageProps) {
           // Use default notebook if not found
           setNotebook({
             id: params.id,
-            name: 'My First Notebook',
-            description: 'A sample physics simulation notebook',
-            template: 'physics-simulation',
+            name: 'Engineering Simulation Workspace',
+            description: 'AI-enhanced physics simulations and engineering analysis',
+            template: 'engineering-simulation',
             type: 'physics',
             cells: [],
             createdAt: new Date().toISOString(),
@@ -134,7 +139,7 @@ export default function NotebookPage({ params }: NotebookPageProps) {
 
   const runCell = async (cellId: string) => {
     const cell = cells.find(c => c.id === cellId);
-    if (!cell || !notebook) return;
+    if (!cell) return;
 
     // Mark cell as running
     setCells(cells.map(c => 
@@ -142,30 +147,55 @@ export default function NotebookPage({ params }: NotebookPageProps) {
     ));
 
     try {
-      // Execute code using the backend service
-      const result = await notebookService.executeCode(
-        notebook.id,
-        cellId,
-        cell.content,
-        cell.type
-      );
+      let result;
+      
+      // For demo mode, use simple execution without notebook ID
+      if (params.id === 'demo') {
+        result = await notebookService.executeCodeSimple(cell.content);
+        
+        // Update cell with results (simple execution format)
+        setCells(prevCells => prevCells.map(c => {
+          if (c.id === cellId) {
+            return {
+              ...c,
+              isRunning: false,
+              output: {
+                text: result.output,
+                figures: result.figures || [],
+                error: result.error
+              }
+            };
+          }
+          return c;
+        }));
+      } else {
+        // For real notebooks, use normal execution with notebook ID
+        if (!notebook) return;
+        
+        const execResult = await notebookService.executeCode(
+          notebook.id,
+          cellId,
+          cell.content,
+          cell.type
+        );
 
-      // Update cell with results
-      setCells(prevCells => prevCells.map(c => {
-        if (c.id === cellId) {
-          return {
-            ...c,
-            isRunning: false,
-            executionId: result.data.executionId,
-            output: {
-              text: result.data.output,
-              figures: result.data.figures || [],
-              error: result.data.error
-            }
-          };
-        }
-        return c;
-      }));
+        // Update cell with results (normal execution format)
+        setCells(prevCells => prevCells.map(c => {
+          if (c.id === cellId) {
+            return {
+              ...c,
+              isRunning: false,
+              executionId: execResult.data.executionId,
+              output: {
+                text: execResult.data.output,
+                figures: execResult.data.figures || [],
+                error: execResult.data.error
+              }
+            };
+          }
+          return c;
+        }));
+      }
 
     } catch (error) {
       console.error('Error executing cell:', error);

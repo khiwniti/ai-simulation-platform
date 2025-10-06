@@ -120,26 +120,28 @@ export function HeroSection() {
           {/* CTA Buttons */}
           <AnimatedContainer variant="scale" delay={0.8}>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-              <Link href="/auth/login">
+              <Link href="/lab">
                 <Button 
                   variant="gradient" 
                   size="xl" 
                   className="group"
                 >
                   <Rocket className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300" />
-                  Enter EnsimuSpace
+                  Launch EnsimuLab
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
                 </Button>
               </Link>
               
-              <Button 
-                variant="outline" 
-                size="xl"
-                className="group"
-              >
-                <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                Watch Demo
-              </Button>
+              <Link href="/simulations">
+                <Button 
+                  variant="outline" 
+                  size="xl"
+                  className="group"
+                >
+                  <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" />
+                  Try Simulations
+                </Button>
+              </Link>
             </div>
           </AnimatedContainer>
 
